@@ -30,5 +30,9 @@ class apiTestCase(unittest.TestCase):
 		res=self.client().post("api/v2/entries", data =self.entryInformation)
 		self.assertEqual(res.status_code,201)
 
+	def testModifyEntry(self):
+		res=self.client().put("/api/v2/entries/1",data=self.entryInformation)
+		self.assertEqual(res.status_code,200)
+
 if __name__=="__main__":
 	unittest.main()

@@ -1,0 +1,6 @@
+{
+  "test_Api.py::apiTestCase::testGetEntries": true, 
+  "test_Api.py::apiTestCase::testGetSingleEntry": true, 
+  "test_Api.py::apiTestCase::testLogin": true, 
+  "test_Api.py::apiTestCase::testSignUp": true
+}

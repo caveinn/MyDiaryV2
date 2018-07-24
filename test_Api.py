@@ -2,9 +2,9 @@ import unittest
 import json
 
 class apiTestCase(unittest.TestCase):
-	def setUp(slef):
-		self.app=createApp(configName="testing")
-		self.client=self.app.test_client
+	def setUp(self):
+		# self.app=createApp(configName="testing")
+		# self.client=self.app.test_client
 		self.userInformation=json.dumps({"content-type":"application/json","name":"jane doe", "password":"12345", "email":"janedoe@gmail.com"})
 
 	def testLogin(self):
@@ -17,8 +17,10 @@ class apiTestCase(unittest.TestCase):
 		res=self.client().post("api/v2/auth/signup",data=self.userInformation)
 		self.assertEqual(res.status_code,201)
 
-	def tetsEntries(self):
+	def testGetEntries(self):
 		res=self.client().get("api/v2/entries")
 		self.assertEqual(res.status_code,200)
 
-	
+	def testGetSingleEntry(self):
+		res=self.client().get("api/v2/entries/1")
+		self.assertEqual(res.status_code,200)

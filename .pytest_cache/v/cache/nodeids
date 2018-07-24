@@ -1,0 +1,6 @@
+[
+  "test_Api.py::apiTestCase::testGetEntries", 
+  "test_Api.py::apiTestCase::testGetSingleEntry", 
+  "test_Api.py::apiTestCase::testLogin", 
+  "test_Api.py::apiTestCase::testSignUp"
+]

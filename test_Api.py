@@ -17,4 +17,8 @@ class apiTestCase(unittest.TestCase):
 		res=self.client().post("api/v2/auth/signup",data=self.userInformation)
 		self.assertEqual(res.status_code,201)
 
+	def tetsEntries(self):
+		res=self.client().get("api/v2/entries")
+		self.assertEqual(res.status_code,200)
+
 	

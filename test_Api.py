@@ -1,31 +1,17 @@
 import unittest
-<<<<<<< HEAD
-
-class apiTestCase(unittest.TestCase):
-	def setUp(slef):
-		self.app=createApp(configName="testing")
-		self.client=self.app.test_client
-
-	def testLogin(self):
-		res=self.client().post('api/v2/auth/login'hearder={
-			'content-type':'application/json','authorizatin':'Basic amFuZSBkb2U6MTIzNA=='
-			})
-		self.assertEqual(res.status_code,200)
-
-	def testSignUp()
-=======
 import json
 from app import createApp
+
 
 class apiTestCase(unittest.TestCase):
     def setUp(self):
 	   self.app=createApp(configName="testing")
 	   self.client=self.app.test_client
 	   self.userInformation=json.dumps({"content-type": "application/json", "name": "jane doe", "password":"12345", "email":"janedoe@gmail.com"})
-	   self.entryInformation=jsonn.dumps({"cont-type":"application/json","title":"sample1", "content":"sample1 sample1 sample1 sample1"})
+	   self.entryInformation=json.dumps({"cont-type":"application/json","title":"sample1", "content":"sample1 sample1 sample1 sample1"})
 	
     def testLogin(self):
-	   res=self.client().post("api/v2/auth/login", hearder={"content-type":"application/json","authorizatin":"Basic amFuZSBkb2U6MTIzNA=="})
+	   res=self.client().post("api/v2/auth/login", hearders={"content-type":"application/json","authorizatin":"Basic amFuZSBkb2U6MTIzNA=="})
 	   self.assertEqual(res.status_code,200)
 
     def testSignUp(self):
@@ -50,4 +36,4 @@ class apiTestCase(unittest.TestCase):
 
 if __name__=="__main__":
 	unittest.main()
->>>>>>> ch-write-tests-159267109
+

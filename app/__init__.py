@@ -1,7 +1,7 @@
 '''create the app'''
 from flask import Flask
 from instance.config import app_config
-from models import db_table,user
+from app.models import db_table,user
 
 
 def create_app(configName):

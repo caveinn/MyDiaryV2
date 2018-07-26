@@ -17,7 +17,7 @@ class Production(Config):
     '''Configuration for production environment'''
     DEBUG = False
 
-appConfig = {
+app_config = {
     'development': Development,
     'testing': Testing,
     'production': Production

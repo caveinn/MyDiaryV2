@@ -58,5 +58,18 @@ def create_app(configName):
             resp.status_code=401
         return resp
 
+    @app.route("/api/v2/entries", methods=["GET"])
+    @token_required
+    def get_entries(current_user):
+        '''function get all entries for the user'''
+        entry_model = entry()
+        data = {}
+        data = entry_model.get_all()
+        data_to_show=[]
+        for ent in data:
+            if ent['user_id'] == current_user["id"]:
+                data_to_show.append(ent)
+        return jsonify(data_to_show)
+
     
     return app

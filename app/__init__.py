@@ -81,6 +81,15 @@ def create_app(configName):
         user_obj.create(data["username"], hashed_password)
         return jsonify({"message":"user created"}), 201
 
-   
+    @app.route("/api/v2/entries", methods=['POST'])
+    @token_required
+    def create_entry(current_user):
+        '''function to create  a new entry'''
+        data = request.get_json()
+        entry_model = entry()
+        entry_model.create(data["title"], data["content"], current_user["id"])
+        return jsonify({"message":"created succesfully"}), 201
+
+    
                     
     return app

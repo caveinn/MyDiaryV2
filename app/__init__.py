@@ -72,6 +72,15 @@ def create_app(configName):
                 data_to_show.append(ent)
         return jsonify(data_to_show)
 
+    @app.route("/api/v2/auth/signup", methods=['POST'])
+    def create_user():
+        '''function to signup user'''
+        data = request.get_json()
+        user_obj = user()
+        hashed_password = generate_password_hash(data["password"], method="sha256")
+        user_obj.create(data["username"], hashed_password)
+        return jsonify({"message":"user created"}), 201
+
    
                     
     return app

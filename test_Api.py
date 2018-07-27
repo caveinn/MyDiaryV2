@@ -25,6 +25,13 @@ class api_test_case(unittest.TestCase):
                                 )
         self.assertEqual(res.status_code,200)
 
+    def test_a_login_wrong(self):
+        res = self.client().post("/api/v2/auth/login", headers={
+            "content-type":"application/json",
+            "Authorization":"Basic amFuZSBkb2U3MTIzNDU="}
+                                )
+        self.asserNotEqual(res.status_code,200)
+
     def test_signup(self):
         
         res=self.client().post("/api/v2/auth/signup",data=self.user_information)

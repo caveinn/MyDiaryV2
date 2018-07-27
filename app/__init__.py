@@ -47,16 +47,31 @@ def create_app(configName):
         resp = None
         token = None
         for single_user in user_data:
-            if auth["username"] == single_user["username"] and \
-            check_password_hash(single_user["password"],auth["password"]):
-                token = jwt.encode(
-                    {"username":single_user["username"], 'exp': datetime.datetime.utcnow()+
-                    datetime.timedelta(minutes=300)}, "some long text which is secret")
-                resp = jsonify({"token":token.decode("UTF-8")})
+            if single_user and auth:
+                if auth["username"] == single_user["username"] and \
+                check_password_hash(single_user["password"],auth["password"]):
+                    token = jwt.encode(
+                        {"username":single_user["username"], 'exp': datetime.datetime.utcnow()+
+                        datetime.timedelta(minutes=300)}, "some long text which is secret")
+                    resp = jsonify({"token":token.decode("UTF-8")})
         if token is None:
             resp = jsonify({"message":"could not log in"})
             resp.status_code=401
         return resp
 
-    
+    @app.route("/api/v2/entries", methods=["GET"])
+    @token_required
+    def get_entries(current_user):
+        '''function get all entries for the user'''
+        entry_model = entry()
+        data = {}
+        data = entry_model.get_all()
+        data_to_show=[]
+        for ent in data:
+            if ent['user_id'] == current_user["id"]:
+                data_to_show.append(ent)
+        return jsonify(data_to_show)
+
+   
+                    
     return app

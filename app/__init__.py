@@ -7,7 +7,31 @@ from instance.config import app_config
 from app.models import db_table, user, entry
 from werkzeug.security import generate_password_hash, check_password_hash
 
+#wrapper to to confirm authentication
+def token_required(func):
+    @wraps(func)
+    def decorated(*args, **kwags):
+        token = None
+        current_user = None
+        if "access_token" in request.headers:
+            token = request.headers["access_token"]
+        if not token:
+            return jsonify({"message":"no token specified"}), 401
+        try:
+            data = jwt.decode(token, "some long text which is secret")
+            usr = user()
 
+            user_data = usr.get_all()
+
+            for single_user in user_data:
+                if single_user["username"] == data["username"]:
+                    current_user = single_user
+
+        except Exception as e:
+
+            return jsonify({"message":"invalid token"}), 401
+        return func(current_user, *args, **kwags)
+    return decorated
 
 def create_app(configName):
     app = Flask("__name__")

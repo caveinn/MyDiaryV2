@@ -132,6 +132,24 @@ def create_app(configName):
         else:
             return jsonify({"message":"entry deleted suuccessfully"})
 
-    
+    @app.route("/api/v2/entries/<entry_id>", methods = ["GET"])
+    @token_required
+    def get_single_entry(current_user, entry_id):
+        '''function to modify an entry'''
+        entry_model = entry()
+        entry_data = entry_model.get_all()
+        exists = False
+        response = {"message":"could not get the entry"}
+        for ent in entry_data:
+            if int(ent["id"]) == int(entry_id):
+                exists = True
+                print(ent)
+                if int(ent["user_id"]) == int(current_user["id"]):
+                    response = ent
+                            
+        if not exists:
+            return jsonify(response), 400
+        else:
+            return jsonify(response)
                     
     return app

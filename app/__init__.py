@@ -81,6 +81,55 @@ def create_app(configName):
         user_obj.create(data["username"], hashed_password)
         return jsonify({"message":"user created"}), 201
 
-   
+    @app.route("/api/v2/entries", methods=['POST'])
+    @token_required
+    def create_entry(current_user):
+        '''function to create  a new entry'''
+        data = request.get_json()
+        entry_model = entry()
+        entry_model.create(data["title"], data["content"], current_user["id"])
+        return jsonify({"message":"created succesfully"}), 201
+
+    @app.route("/api/v2/entries/<entry_id>", methods=["PUT"])
+    @token_required
+    def modify_entry(current_user,entry_id):
+        '''function to modify an entry'''
+        entry_model = entry()
+        data = request.get_json()
+        entry_data = entry_model.get_all()
+        exists = False
+        for ent in entry_data:
+            if int(ent["id"]) == int(entry_id):
+                exists = True
+                if int(ent["user_id"]) == int(current_user["id"]):
+                    entry_model.update(id=entry_id,title=data["title"],content=data["content"])
+                else:
+                    return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
+        
+        if not exists:
+            return jsonify({"message":"entry does not exist"}), 401
+        else:
+            return jsonify({"message":"update succesful"})
+
+    @app.route("/api/v2/entries/<ent_id>", methods=["DELETE"])
+    @token_required
+    def delete_entry(current_user,ent_id):
+        '''function to delete an entry'''
+        entry_model = entry()
+        data = request.get_json()
+        entry_data = entry_model.get_all()
+        exists = False
+        for ent in entry_data:
+            if int(ent["id"]) == int(ent_id):
+                exists = True
+                if int(ent["user_id"]) == int(current_user["id"]):
+                    entry_model.delete(entry_id=ent_id)
+                else:
+                    return jsonify({"message":"you tried to acces am entry thats not yours"}), 401
+        
+        if not exists:
+            return jsonify({"message":"entry does not exist"}), 401
+        else:
+            return jsonify({"message":"entry deleted suuccessfully"})
                     
     return app

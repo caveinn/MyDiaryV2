@@ -124,13 +124,3 @@ class entry(object):
         connection.commit()
         connection.close()
         return self.data
-
-    def delete(self, entry_id):
-        connection = psycopg2.connect(self.db_name)
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("DELETE FROM entries WHERE id = %s",
-                       (entry_id, )
-                      )
-        connection.commit()
-        connection.close()

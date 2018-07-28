@@ -19,9 +19,10 @@ To run this project you should follow the following steps:
 
 1. Install git  
 1. clone this repo  
-`$ git clone "https://github.com/caveinn/MyDiaryV2.git"`   
-1.cd into the folder MyDiaryV2
-1.export required enviroments  
+`$ git clone "https://github.com/caveinn/MyDiaryV2.git"` 
+  
+1. cd into the folder MyDiaryV2
+1. export required enviroments  
 	`$ export APP_SETTINGS="development"`  
 	`$ export SECRET="a secret string of your choosing"`
 1. install requirements      

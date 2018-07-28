@@ -3,8 +3,11 @@ import psycopg2
 
 class db_table(object):
     '''class to initialise tables in db'''
+    def __init__(self, db_name):
+        self.db_name = db_name
+
     def create_tables(self):
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #create users table
         cursor.execute("CREATE TABLE users (id serial PRIMARY KEY, " \
@@ -17,13 +20,12 @@ class db_table(object):
         connection.close()
 
     def drop_all(self):
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_schema,table_name")
         rows = cursor.fetchall()
         for row in rows:
             cursor.execute("drop table "+row[1] + " cascade") 
-            print("dropping"+row[1])
         cursor.close()
         connection.commit()
         connection.close()
@@ -31,11 +33,12 @@ class db_table(object):
 
 class user(object):
     '''class store users in db and perform various functions'''
-    def __init__(self):
+    def __init__(self, db_name):
         '''inititalize empty user object'''
         self.data = None
         self.username = None
         self.password = None
+        self.db_name = db_name
 
     def create(self, name, password):
         self.username = name
@@ -44,7 +47,7 @@ class user(object):
 
     def save(self):
         '''save user after creation or modification'''
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)",
@@ -55,7 +58,7 @@ class user(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("SELECT * FROM users")
@@ -70,11 +73,12 @@ class user(object):
         return self.data
 
 class entry(object):
-    def __init__(self):
+    def __init__(self,db_name):
         self.data = None
         self.title = None
         self.content = None
         self.user_id = None
+        self.db_name =db_name
 
     def create(self, title, content, user_id):
         self.title = title
@@ -83,7 +87,7 @@ class entry(object):
         self.save()
 
     def save(self):
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("INSERT INTO entries (title, content, user_id ) VALUES (%s, %s, %s)",
@@ -93,7 +97,7 @@ class entry(object):
         connection.close()
     
     def update(self,id, title, content):
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("UPDATE entries SET content = %s , title = %s WHERE id = %s",
@@ -106,7 +110,7 @@ class entry(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("SELECT * FROM entries")
@@ -122,7 +126,7 @@ class entry(object):
         return self.data
 
     def delete(self, entry_id):
-        connection = psycopg2.connect("dbname=test_db")
+        connection = psycopg2.connect(self.db_name)
         cursor = connection.cursor()
         #save information to db
         cursor.execute("DELETE FROM entries WHERE id = %s",

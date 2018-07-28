@@ -7,7 +7,7 @@ from app.models import db_table
 
 class api_test_case(unittest.TestCase):
     def setUp(self):
-        self.table_model = db_table()
+        self.table_model = db_table("dbname = test_db")
         self.table_model.create_tables()
         self.app = create_app(configName="testing")
         self.client = self.app.test_client

@@ -1,4 +1,4 @@
 from app.models import db_table
 
-db=db_table()
-db.create_tables()
+db=db_table("dbname = test_db")
+db.drop_all()

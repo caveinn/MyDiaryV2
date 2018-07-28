@@ -8,40 +8,42 @@ from app.models import user, entry
 from werkzeug.security import generate_password_hash, check_password_hash
 
 #wrapper to to confirm authentication
-def token_required(func):
-    @wraps(func)
-    def decorated(*args, **kwags):
-        token = None
-        current_user = None
-        if "access_token" in request.headers:
-            token = request.headers["access_token"]
-        if not token:
-            return jsonify({"message":"no token specified"}), 401
-        try:
-            data = jwt.decode(token, "some long text which is secret")
-            usr = user()
 
-            user_data = usr.get_all()
-
-            for single_user in user_data:
-                if single_user["username"] == data["username"]:
-                    current_user = single_user
-
-        except Exception as e:
-
-            return jsonify({"message":"invalid token"}), 401
-        return func(current_user, *args, **kwags)
-    return decorated
 
 def create_app(configName):
     app = Flask("__name__")
     app.config.from_object(app_config[configName])
     app.config.from_pyfile("instance/config.py")
 
+    def token_required(func):
+        @wraps(func)
+        def decorated(*args, **kwags):
+            token = None
+            current_user = None
+            if "access_token" in request.headers:
+                token = request.headers["access_token"]
+            if not token:
+                return jsonify({"message":"no token specified"}), 401
+            try:
+                data = jwt.decode(token, app.config.get("SECRET"))
+                print("decoded")
+                usr = user(app.config.get('DB'))
+
+                user_data = usr.get_all()
+
+                for single_user in user_data:
+                    if single_user["username"] == data["username"]:
+                        current_user = single_user
+
+            except Exception as e:
+
+                return jsonify({"message":"invalid token"}), 401
+            return func(current_user, *args, **kwags)
+        return decorated
     @app.route("/api/v2/auth/login", methods=["POST"])
     def login():
         '''function ot log in user'''
-        user_ = user()
+        user_ = user(app.config.get('DB'))
         user_data = user_.get_all()
         auth = request.authorization
         resp = None
@@ -52,7 +54,7 @@ def create_app(configName):
                 check_password_hash(single_user["password"],auth["password"]):
                     token = jwt.encode(
                         {"username":single_user["username"], 'exp': datetime.datetime.utcnow()+
-                        datetime.timedelta(minutes=300)}, "some long text which is secret")
+                        datetime.timedelta(minutes=300)}, app.config.get("SECRET"))
                     resp = jsonify({"token":token.decode("UTF-8")})
         if token is None:
             resp = jsonify({"message":"could not log in"})
@@ -63,7 +65,7 @@ def create_app(configName):
     @token_required
     def get_entries(current_user):
         '''function get all entries for the user'''
-        entry_model = entry()
+        entry_model = entry(app.config.get('DB'))
         data = {}
         data = entry_model.get_all()
         data_to_show=[]
@@ -76,7 +78,7 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
-        user_obj = user()
+        user_obj = user(app.config.get('DB'))
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj.create(data["username"], hashed_password)
         return jsonify({"message":"user created"}), 201
@@ -86,7 +88,7 @@ def create_app(configName):
     def create_entry(current_user):
         '''function to create  a new entry'''
         data = request.get_json()
-        entry_model = entry()
+        entry_model = entry(app.config.get('DB'))
         entry_model.create(data["title"], data["content"], current_user["id"])
         return jsonify({"message":"created succesfully"}), 201
 
@@ -94,7 +96,7 @@ def create_app(configName):
     @token_required
     def modify_entry(current_user,entry_id):
         '''function to modify an entry'''
-        entry_model = entry()
+        entry_model = entry(app.config.get('DB'))
         data = request.get_json()
         entry_data = entry_model.get_all()
         exists = False
@@ -115,7 +117,7 @@ def create_app(configName):
     @token_required
     def delete_entry(current_user,ent_id):
         '''function to delete an entry'''
-        entry_model = entry()
+        entry_model = entry(app.config.get('DB'))
         data = request.get_json()
         entry_data = entry_model.get_all()
         exists = False
@@ -136,14 +138,13 @@ def create_app(configName):
     @token_required
     def get_single_entry(current_user, entry_id):
         '''function to modify an entry'''
-        entry_model = entry()
+        entry_model = entry(app.config.get('DB'))
         entry_data = entry_model.get_all()
         exists = False
         response = {"message":"could not get the entry"}
         for ent in entry_data:
             if int(ent["id"]) == int(entry_id):
                 exists = True
-                print(ent)
                 if int(ent["user_id"]) == int(current_user["id"]):
                     response = ent
                             

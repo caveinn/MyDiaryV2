@@ -3,14 +3,14 @@ import psycopg2
 
 class db_table(object):
     '''class to initialise tables in db'''
-    def __init__(self):
+    def create_tables(self):
         connection = psycopg2.connect("dbname=test_db")
         cursor = connection.cursor()
-        # create users table
+        #create users table
         cursor.execute("CREATE TABLE users (id serial PRIMARY KEY, " \
             "username varchar not null unique,password varchar not null )"
                       )
-        # create entries db
+        #create entries db
         cursor.execute("CREATE TABLE entries (id serial PRIMARY KEY, title varchar not null unique"\
             ",content varchar not null, user_id integer references users(id))")
         connection.commit()
@@ -23,6 +23,7 @@ class db_table(object):
         rows = cursor.fetchall()
         for row in rows:
             cursor.execute("drop table "+row[1] + " cascade") 
+            print("dropping"+row[1])
         cursor.close()
         connection.commit()
         connection.close()

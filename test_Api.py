@@ -2,21 +2,37 @@
 import unittest
 import json
 from app import create_app
+from app.models import db_table
 
 
 class api_test_case(unittest.TestCase):
     def setUp(self):
+        self.table_model = db_table()
+        self.table_model.create_tables()
         self.app = create_app(configName="testing")
         self.client = self.app.test_client
         self.user_information = json.dumps({
-            "content-type": "application/json",
             "username": "jane doe", "password":"12345",
             "email":"janedoe@gmail.com"}
-                                          )
+                                   )
         self.entry_information = json.dumps({
-            "contenttype":"application/json",
-            "title":"sample1", "content":"sample1 sample1 sample1 sample1"}
-                                           )
+            'content-type': "application/json",
+            "title":"sample1", "content":"sample1 sample1 sample1 sample1"})
+        #create user to test various endpoints
+        res1=self.client().post("/api/v2/auth/signup",data=self.user_information,content_type = 'application/json')
+        #get token for various  
+        resp_token = self.client().post("/api/v2/auth/login", headers={
+            "content-type":"application/json",
+            "Authorization":"Basic amFuZSBkb2U6MTIzNDU="})
+        result = json.loads(resp_token.data.decode())  
+        self.token= result["token"]
+        #create entry to test
+        res2=self.client().post("/api/v2/entries", data =self.entry_information, 
+            headers={"access_token":self.token}, content_type="application/json")
+       
+
+    def tearDown(self):
+        self.table_model.drop_all()
 
     def test_a_login(self):
         res = self.client().post("/api/v2/auth/login", headers={
@@ -27,39 +43,24 @@ class api_test_case(unittest.TestCase):
 
     def test_a_login_wrong(self):
         res = self.client().post("/api/v2/auth/login", headers={
-            "content-type":"application/json",
+            "Content-Type":"application/json",
             "Authorization":"Basic amFuZSBkb2U3MTIzNDU="}
                                 )
-        self.asserNotEqual(res.status_code,200)
+        self.assertNotEqual(res.status_code,200)
 
-    def test_signup(self):
-        
-        res=self.client().post("/api/v2/auth/signup",data=self.user_information)
-        self.assertEqual(res.status_code,201)
 
     def test_get_entries(self):
-        resp_token = self.client().post("/api/v2/auth/login", headers={
-            "content-type":"application/json",
-            "Authorization":"Basic amFuZSBkb2U6MTIzNDU="})
-        result = json.loads(resp_token.data.decode())
-        res=self.client().get("/api/v2/entries", headers={"access_token":result["token"]} )
+        
+        res=self.client().get("/api/v2/entries", headers={"access_token":self.token} )
         self.assertEqual(res.status_code,200)
 
     def test_get_single_entry(self):
-        resp_token = self.client().post("/api/v2/auth/login", headers={
-            "content-type":"application/json",
-            "Authorization":"Basic amFuZSBkb2U6MTIzNDU="})
-        result = json.loads(resp_token.data.decode())
-        res=self.client().get("/api/v2/entries/1", headers={"access_token":result["token"]})
+        res=self.client().get("/api/v2/entries/1", headers={"access_token":self.token}, content_type="application/json")
         self.assertEqual(res.status_code,200)
 
-    def test_add_entry(self):
-       res=self.client().post("/api/v2/entries", data =self.entry_information)
-       self.assertEqual(res.status_code,201)
+    
 
-    def test_modify_entry(self):
-       res=self.client().put("/api/v2/entries/2",data=self.entry_information)
-       self.assertEqual(res.status_code,200)
+    
 
 if __name__ == "__main__":
     unittest.main()

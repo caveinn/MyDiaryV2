@@ -4,7 +4,7 @@ import jwt
 from functools import wraps
 from flask import Flask, request, jsonify
 from instance.config import app_config
-from app.models import db_table, user, entry
+from app.models import user, entry
 from werkzeug.security import generate_password_hash, check_password_hash
 
 #wrapper to to confirm authentication
@@ -76,6 +76,7 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
+        print(data)
         user_obj = user()
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj.create(data["username"], hashed_password)
@@ -149,7 +150,6 @@ def create_app(configName):
                             
         if not exists:
             return jsonify(response), 400
-        else:
-            return jsonify(response)
+        return jsonify(response)
                     
     return app

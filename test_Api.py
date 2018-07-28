@@ -48,6 +48,10 @@ class api_test_case(unittest.TestCase):
                                 )
         self.assertNotEqual(res.status_code,200)
 
+    def test_signup(self):
+        res=self.client().post("/api/v2/auth/signup",data=json.dumps({"username":"kevin", "password":"kevin"}), 
+            content_type = 'application/json')
+        self.assertEqual(res.status_code,201)
 
     def test_get_entries(self):
         
@@ -60,7 +64,10 @@ class api_test_case(unittest.TestCase):
 
     
 
-    
+    def test_modify_entry(self):
+        res=self.client().put("/api/v2/entries/1",data=self.entry_information,headers= {"access_token":self.token},
+            content_type="application/json")
+        self.assertEqual(res.status_code,200)
 
 if __name__ == "__main__":
     unittest.main()

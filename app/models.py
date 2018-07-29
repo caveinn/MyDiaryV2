@@ -124,7 +124,7 @@ class entry(object):
     def update(self,id, title, content):
         connection = psycopg2.connect(
             database  = "d9uk0uj735e4rp",
-            password  '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            password  = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
             host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
             )
@@ -140,7 +140,7 @@ class entry(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection = psycopg2.connect(
+        connection=psycopg2.connect(
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',

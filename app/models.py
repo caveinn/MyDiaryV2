@@ -7,7 +7,12 @@ class db_table(object):
         self.db_name = db_name
 
     def create_tables(self):
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #create users table
         cursor.execute("CREATE TABLE users (id serial PRIMARY KEY, " \
@@ -20,7 +25,12 @@ class db_table(object):
         connection.close()
 
     def drop_all(self):
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_schema,table_name")
         rows = cursor.fetchall()
@@ -47,7 +57,12 @@ class user(object):
 
     def save(self):
         '''save user after creation or modification'''
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #save information to db
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)",
@@ -58,7 +73,12 @@ class user(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password ='4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #save information to db
         cursor.execute("SELECT * FROM users")
@@ -87,7 +107,12 @@ class entry(object):
         self.save()
 
     def save(self):
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #save information to db
         cursor.execute("INSERT INTO entries (title, content, user_id ) VALUES (%s, %s, %s)",
@@ -97,7 +122,12 @@ class entry(object):
         connection.close()
     
     def update(self,id, title, content):
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password  '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #save information to db
         cursor.execute("UPDATE entries SET content = %s , title = %s WHERE id = %s",
@@ -110,7 +140,12 @@ class entry(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection = psycopg2.connect(self.db_name)
+        connection = psycopg2.connect(
+            database  = "d9uk0uj735e4rp",
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            user  = 'pfpewbzvzcrsnk',
+            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            )
         cursor = connection.cursor()
         #save information to db
         cursor.execute("SELECT * FROM entries")

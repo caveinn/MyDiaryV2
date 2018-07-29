@@ -11,7 +11,7 @@ class db_table(object):
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #create users table
@@ -29,7 +29,7 @@ class db_table(object):
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_schema,table_name")
@@ -61,7 +61,7 @@ class user(object):
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #save information to db
@@ -75,9 +75,9 @@ class user(object):
         '''function to return all users'''
         connection = psycopg2.connect(
             database  = "d9uk0uj735e4rp",
-            password ='4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #save information to db
@@ -111,7 +111,7 @@ class entry(object):
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #save information to db
@@ -124,9 +124,9 @@ class entry(object):
     def update(self,id, title, content):
         connection = psycopg2.connect(
             database  = "d9uk0uj735e4rp",
-            password  = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
+            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #save information to db
@@ -140,11 +140,11 @@ class entry(object):
 
     def get_all(self):
         '''function to return all users'''
-        connection=psycopg2.connect(
+        connection = psycopg2.connect(
             database  = "d9uk0uj735e4rp",
             password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
             user  = 'pfpewbzvzcrsnk',
-            host  = "ec2'-54-204-23-228.compute-1.amazonaws.com",
+            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
             )
         cursor = connection.cursor()
         #save information to db

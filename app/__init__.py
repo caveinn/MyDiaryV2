@@ -76,7 +76,6 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
-        print(data)
         user_obj = user()
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj.create(data["username"], hashed_password)

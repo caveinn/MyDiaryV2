@@ -63,6 +63,15 @@ class Db(object):
 
         self.conn.close()
         return users_list
+    def update(self, entry_id, title, content):
+        #save information to db
+        cursor = self.get_connnection().cursor()
+        cursor.execute(
+            "UPDATE entries SET content = %s , title = %s WHERE id = %s",
+            (content, title, entry_id, )
+            )
+        self.conn.commit()
+    
     
     def get_all_entries(self):
         print ("creating connection")
@@ -71,8 +80,9 @@ class Db(object):
         entry_data = cursor.fetchall()
         print(entry_data)
         entry_list = []
-        entry_dict = {}
+        
         for single_entry in entry_data:
+            entry_dict = {}
             entry_dict["id"] = single_entry[0]
             entry_dict["title"] = single_entry[1]
             entry_dict["content"] = single_entry[2]
@@ -120,15 +130,10 @@ class User(Db):
         self.conn.commit()
         self.conn.close()
 
-    def get_data(self):
-        user_data = {}
-        user_data["username"] = self.username
-        user_data["email"] = self.email
-        user_data["password"] = self.password
 
 
 class Entry(Db):
-    def __init__(self, title, content, user_id  ):
+    def __init__(self, title, content, user_id = None  ):
         super(Entry, self).__init__()
         self.title = title
         self.content = content
@@ -150,13 +155,5 @@ class Entry(Db):
         print("something")
         self.conn.commit()
         self.conn.close()
-
-    def update(self, entry_id, title, content):
-        #save information to db
-        self.cursor.execute(
-            "UPDATE entries SET content = %s , title = %s WHERE id = %s",
-            (content, title, entry_id, )
-            )
-        self.conn.commit()
 
     

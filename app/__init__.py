@@ -97,15 +97,15 @@ def create_app(configName):
     @token_required
     def modify_entry(current_user,entry_id):
         '''function to modify an entry'''
-        entry_model = entry(app.config.get('DB'))
+        db = Db()
         data = request.get_json()
-        entry_data = entry_model.get_all()
+        entry_data = db.get_all_entries()
         exists = False
         for ent in entry_data:
             if int(ent["id"]) == int(entry_id):
                 exists = True
                 if int(ent["user_id"]) == int(current_user["id"]):
-                    entry_model.update(id=entry_id,title=data["title"],content=data["content"])
+                    db.update(entry_id=entry_id,title=data["title"],content=data["content"])
                 else:
                     return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
         

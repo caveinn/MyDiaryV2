@@ -1,11 +1,11 @@
 '''create the app'''
 import datetime
-import jwt
 from functools import wraps
+import jwt
 from flask import Flask, request, jsonify
 from instance.config import app_config
-from app.models import user, entry
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.models import User, Entry, Db
 
 #wrapper to to confirm authentication
 
@@ -26,31 +26,33 @@ def create_app(configName):
                 return jsonify({"message":"no token specified"}), 401
             try:
                 data = jwt.decode(token, app.config.get("SECRET"))
-                usr = user(app.config.get('DB'))
+                db_object = Db()
 
-                user_data = usr.get_all()
-
+                user_data = db_object.get_all_users()
                 for single_user in user_data:
-                    if single_user["username"] == data["username"]:
+
+                    if single_user["username"]== data["username"]:
                         current_user = single_user
 
             except Exception as e:
-
+                print(e)
                 return jsonify({"message":"invalid token"}), 401
             return func(current_user, *args, **kwags)
         return decorated
+
     @app.route("/api/v2/auth/login", methods=["POST"])
     def login():
         '''function ot log in user'''
-        user_ = user(app.config.get('DB'))
-        user_data = user_.get_all()
-        auth = request.authorization
+        db_object = Db()
+        user_data = db_object.get_all_users()
+        username = request.get_json()["username"]
+        password = request.get_json()["password"]
         resp = None
         token = None
         for single_user in user_data:
-            if single_user and auth:
-                if auth["username"] == single_user["username"] and \
-                check_password_hash(single_user["password"],auth["password"]):
+            if single_user and  username and password:
+                if username == single_user["username"] and \
+                check_password_hash(single_user["password"],password):
                     token = jwt.encode(
                         {"username":single_user["username"], 'exp': datetime.datetime.utcnow()+
                         datetime.timedelta(minutes=300)}, app.config.get("SECRET"))
@@ -64,11 +66,14 @@ def create_app(configName):
     @token_required
     def get_entries(current_user):
         '''function get all entries for the user'''
-        entry_model = entry(app.config.get('DB'))
-        data = {}
-        data = entry_model.get_all()
-        data_to_show=[]
-        for ent in data:
+        db = Db()
+        entries = db.get_all_entries()
+        print(entries)
+        data_to_show = []
+        for ent in entries:
+            print(current_user)
+            print(ent)
+            print()
             if ent['user_id'] == current_user["id"]:
                 data_to_show.append(ent)
         return jsonify(data_to_show)
@@ -77,18 +82,18 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
-        user_obj = user(app.config.get('DB'))
         hashed_password = generate_password_hash(data["password"], method="sha256")
-        user_obj.create(data["username"], hashed_password)
-        return jsonify({"message":"user created"}), 201
+        user_obj = User(data["username"], data["email"], hashed_password)
+
+        return jsonify({"message":"user created"}, user_obj.get_data()), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required
     def create_entry(current_user):
         '''function to create  a new entry'''
         data = request.get_json()
-        entry_model = entry(app.config.get('DB'))
-        entry_model.create(data["title"], data["content"], current_user["id"])
+        entry_obj = Entry(title=data["title"], content = data["content"], user_id =current_user["id"] )
+        print(data)
         return jsonify({"message":"created succesfully"}), 201
 
     @app.route("/api/v2/entries/<entry_id>", methods=["PUT"])

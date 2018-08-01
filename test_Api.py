@@ -19,7 +19,7 @@ class api_test_case(unittest.TestCase):
             'content-type': "application/json",
             "title":"sample1", "content":"sample1 sample1 sample1 sample1"})
         #create user to test various endpoints
-        res1=self.client().post("/api/v2/auth/signup",data=self.user_information,content_type = 'application/json')
+        res1 = self.client().post("/api/v2/auth/signup",data=self.user_information,content_type = 'application/json')
         #get token for various  
         resp_token = self.client().post("/api/v2/auth/login", headers={
             "content-type":"application/json",
@@ -27,7 +27,7 @@ class api_test_case(unittest.TestCase):
         result = json.loads(resp_token.data.decode())  
         self.token= result["token"]
         #create entry to test
-        res2=self.client().post("/api/v2/entries", data =self.entry_information, 
+        res2 = self.client().post("/api/v2/entries", data =self.entry_information, 
             headers={"access_token":self.token}, content_type="application/json")
        
 

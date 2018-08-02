@@ -139,6 +139,26 @@ def create_app(configName):
         else:
             return jsonify({"message":"update succesful"})
 
+    @app.route("/api/v2/entries/<entry_id>", methods=["DELETE"])
+    @token_required
+    def delete_entry(current_user,entry_id):
+        '''function to modify an entry'''
+        db = Db()
+        data = request.get_json()
+        entry_data = db.get_all_entries()
+        exists = False
+        for ent in entry_data:
+            if int(ent["id"]) == int(entry_id):
+                exists = True
+                if int(ent["user_id"]) == int(current_user["id"]):
+                    db.delete(entry_id=entry_id)
+                else:
+                    return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
+        if not exists:
+            return jsonify({"message":"entry does not exist"}), 401
+        else:
+            return jsonify({"message":"deleted"})
+
 
     @app.route("/api/v2/entries/<entry_id>", methods = ["GET"])
     @token_required

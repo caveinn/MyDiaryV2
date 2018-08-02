@@ -64,7 +64,7 @@ class Db(object):
         self.conn.close()
         return users_list
     def update(self, entry_id, title, content):
-        #save information to db
+        #update entry in db
         cursor = self.get_connnection().cursor()
         cursor.execute(
             "UPDATE entries SET content = %s , title = %s WHERE id = %s",
@@ -72,7 +72,15 @@ class Db(object):
             )
         self.conn.commit()
     
-    
+    def delete(self, entry_id):
+        #delete entry
+        cursor = self.get_connnection().cursor()
+        cursor.execute(
+            "DELETE FROM entries WHERE id = %s",
+            (entry_id, )
+            )
+        self.conn.commit()
+
     def get_all_entries(self):
         print ("creating connection")
         cursor = self.get_connnection().cursor()

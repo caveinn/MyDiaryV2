@@ -1,0 +1,6 @@
+__pycache__
+.pytest_cache
+.vscode/
+.coverage
+app/__init__.pyc
+instance/config.pyc

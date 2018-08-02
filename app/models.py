@@ -100,7 +100,7 @@ class Db(object):
         )
         rows = cursor.fetchall()
         for row in rows:
-            self.cursor.execute("drop table "+row[1] + " cascade")
+            cursor.execute("drop table "+row[1] + " cascade")
         self.conn.commit()
         self.conn.close()
 

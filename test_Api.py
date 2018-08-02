@@ -2,13 +2,13 @@
 import unittest
 import json
 from app import create_app
-from app.models import db_table
+from app.models import Db
 
 
 class api_test_case(unittest.TestCase):
     def setUp(self):
-        self.table_model = db_table("dbname = test_db")
-        self.table_model.create_tables()
+        self.db_obj = Db()
+        self.db_obj.create_tables()
         self.app = create_app(configName="testing")
         self.client = self.app.test_client
         self.user_information = json.dumps({
@@ -21,9 +21,7 @@ class api_test_case(unittest.TestCase):
         #create user to test various endpoints
         res1 = self.client().post("/api/v2/auth/signup",data=self.user_information,content_type = 'application/json')
         #get token for various  
-        resp_token = self.client().post("/api/v2/auth/login", headers={
-            "content-type":"application/json",
-            "Authorization":"Basic amFuZSBkb2U6MTIzNDU="})
+        resp_token = self.client().post("/api/v2/auth/login", data = self.user_information,content_type = 'application/json')
         result = json.loads(resp_token.data.decode())  
         self.token= result["token"]
         #create entry to test
@@ -32,12 +30,10 @@ class api_test_case(unittest.TestCase):
        
 
     def tearDown(self):
-        self.table_model.drop_all()
+        self.db_obj.drop_all()
 
     def test_a_login(self):
-        res = self.client().post("/api/v2/auth/login", headers={
-            "content-type":"application/json",
-            "Authorization":"Basic amFuZSBkb2U6MTIzNDU="}
+        res = self.client().post("/api/v2/auth/login", data = self.user_information, content_type = "application/json"
                                 )
         self.assertEqual(res.status_code,200)
 
@@ -49,7 +45,7 @@ class api_test_case(unittest.TestCase):
         self.assertNotEqual(res.status_code,200)
 
     def test_signup(self):
-        res=self.client().post("/api/v2/auth/signup",data=json.dumps({"username":"kevin", "password":"kevin"}), 
+        res=self.client().post("/api/v2/auth/signup",data=json.dumps({"username":"kevin", "password":"kevin", "email":"kevin@gmail.com"}), 
             content_type = 'application/json')
         self.assertEqual(res.status_code,201)
 

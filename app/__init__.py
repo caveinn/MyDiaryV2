@@ -1,6 +1,7 @@
 '''create the app'''
 import datetime
 from functools import wraps
+import re
 import jwt
 from flask import Flask, request, jsonify
 from instance.config import app_config
@@ -80,16 +81,41 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
+        db_obj = Db()
+        username = data["username"].strip()
+        email = data["email"].strip()
+        user_data = db_obj.get_all_users()
+        for single_user in user_data:
+            if single_user["username"] == username:
+                return jsonify({"message":"user "+ data['username']+" is already registered"}), 400
+            if single_user["email"] == email:
+                return jsonify({"message":"email "+ email +" is already registered"}), 400
+        if not re.match(r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)", email):
+            return jsonify({'message':'invalid email'}), 400
+        if username == '':
+            return jsonify({"message":"username cannot be blank"}), 400
+        if data["password"] == '':
+            return jsonify({"message":"password cannot be blank"}), 400
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj = User(data["username"], data["email"], hashed_password)
 
-        return jsonify({"message":"user created"}), 201
+        return jsonify({"message":"user "+data["username"]+" created"}), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required
     def create_entry(current_user):
         '''function to create  a new entry'''
         data = request.get_json()
+        db_obj = Db()
+        entry_data = db_obj.get_all_entries()
+        for single_entry in entry_data:
+            if single_entry["title"] == data["title"] and single_entry["user_id"] == current_user["id"]:
+                return jsonify({"message":"entry with title "+ data['title']+" already exists"}), 400
+        if data["title"].strip() == '':
+            return jsonify({"message":"title cannot be blank"}), 400
+        if data["content"].strip() == '':
+            return jsonify({"message":"content cannot be blank"}), 400
+
         entry_obj = Entry(title=data["title"], content = data["content"], user_id =current_user["id"] )
         return jsonify({"message":"created succesfully"}), 201
 
@@ -105,10 +131,9 @@ def create_app(configName):
             if int(ent["id"]) == int(entry_id):
                 exists = True
                 if int(ent["user_id"]) == int(current_user["id"]):
-                    db.update(entry_id=entry_id,title=data["title"],content=data["content"])
+                    db.update(entry_id=entry_id, title=data["title"], content=data["content"])
                 else:
                     return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
-        
         if not exists:
             return jsonify({"message":"entry does not exist"}), 401
         else:

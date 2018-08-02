@@ -1,161 +1,167 @@
 '''creating and managing database tables'''
+import os
+from datetime import datetime
 import psycopg2
 
-class db_table(object):
+class Db(object):
     '''class to initialise tables in db'''
-    def __init__(self, db_name):
-        self.db_name = db_name
+    def __init__(self):
+        self.db_name = os.getenv("DB_NAME")
+        self.db_host = os.getenv("DB_HOST")
+        self.db_password = os.getenv("DB_PASSWORD")
+        self.db_user = os.getenv("DB_USER")
+        self.conn = None
+
+    def get_connnection(self):
+        if os.getenv("APP_SETTINGS") == "testing" or os.getenv("APP_SETTINGS") == "development":
+            self.conn = psycopg2.connect(database="test_db")
+        else:
+            self.conn = psycopg2.connect(
+                database=self.db_name,
+                password=self.db_password,
+                user=self.db_user,
+                host=self.db_host
+                )
+        return self.conn
+
 
     def create_tables(self):
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
+        try:
+            #create users table
+            cursor = self.get_connnection().cursor()
+            cursor.execute(
+                "CREATE TABLE users (id serial PRIMARY KEY, " \
+                "username varchar(30) not null unique, email varchar not null unique, password varchar not null )"
+                )
+            #create entries db
+            cursor.execute(
+                "CREATE TABLE entries (id serial PRIMARY KEY, title varchar(100) not null unique,"\
+                "content varchar(400) not null, date_created varchar not null, "\
+                "user_id integer references users(id))"
+                )
+        except psycopg2.Error as db_error:
+            print(db_error)
+            return db_error.pgerror
+        self.conn.commit()
+        self.conn.close()
+        return "work"
+
+    def get_all_users(self):
+        '''function to return all users'''
+        #save information to db
+        cursor = self.get_connnection().cursor()
+        cursor.execute("SELECT * FROM users")
+        user_data = cursor.fetchall()
+        users_list = []
+        user_dict = {}
+        for single_user in user_data:
+            user_dict["id"]=single_user[0]
+            user_dict["username"]=single_user[1] 
+            user_dict["email"]=single_user[2]
+            user_dict["password"]=single_user[3]
+            users_list.append(user_dict)
+
+        self.conn.close()
+        return users_list
+    def update(self, entry_id, title, content):
+        #update entry in db
+        cursor = self.get_connnection().cursor()
+        cursor.execute(
+            "UPDATE entries SET content = %s , title = %s WHERE id = %s",
+            (content, title, entry_id, )
             )
-        cursor = connection.cursor()
-        #create users table
-        cursor.execute("CREATE TABLE users (id serial PRIMARY KEY, " \
-            "username varchar not null unique,password varchar not null )"
-                      )
-        #create entries db
-        cursor.execute("CREATE TABLE entries (id serial PRIMARY KEY, title varchar not null unique"\
-            ",content varchar not null, user_id integer references users(id))")
-        connection.commit()
-        connection.close()
+        self.conn.commit()
+    
+    def delete(self, entry_id):
+        #delete entry
+        cursor = self.get_connnection().cursor()
+        cursor.execute(
+            "DELETE FROM entries WHERE id = %s",
+            (entry_id, )
+            )
+        self.conn.commit()
+
+    def get_all_entries(self):
+        print ("creating connection")
+        cursor = self.get_connnection().cursor()
+        cursor.execute("SELECT * FROM entries")
+        entry_data = cursor.fetchall()
+        print(entry_data)
+        entry_list = []
+        
+        for single_entry in entry_data:
+            entry_dict = {}
+            entry_dict["id"] = single_entry[0]
+            entry_dict["title"] = single_entry[1]
+            entry_dict["content"] = single_entry[2]
+            entry_dict["date_created"] = single_entry[3]
+            entry_dict["user_id"] = single_entry[4]
+            entry_list.append(entry_dict)
+        self.conn.close()
+        return entry_list
 
     def drop_all(self):
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_schema,table_name")
+        cursor=self.get_connnection().cursor()
+        cursor.execute(
+            "SELECT table_schema,table_name FROM information_schema.tables "\
+            " WHERE table_schema = 'public' ORDER BY table_schema,table_name"
+        )
         rows = cursor.fetchall()
         for row in rows:
-            cursor.execute("drop table "+row[1] + " cascade") 
-        cursor.close()
-        connection.commit()
-        connection.close()
+            cursor.execute("drop table "+row[1] + " cascade")
+        self.conn.commit()
+        self.conn.close()
 
 
-class user(object):
+class User(Db):
     '''class store users in db and perform various functions'''
-    def __init__(self, db_name):
-        '''inititalize empty user object'''
-        self.data = None
-        self.username = None
-        self.password = None
-        self.db_name = db_name
-
-    def create(self, name, password):
-        self.username = name
+    def __init__(self, username, email, password):
+        '''inititalize a user object'''
+        super(User, self).__init__()
+        self.username = username
         self.password = password
-        self.save()
+        self.email = email
+        user_list = self.get_all_users()
+        save = True
+        for user in user_list:
+            if user["username"] == username or user["email"] == email:
+                 save = False
+       #save information to db
+        cursor = self.get_connnection().cursor()
+        if save:
+            print("saving")
+            cursor.execute(
+                "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                (self.username, self.email, self.password, )
+                )
+        print("something")
+        self.conn.commit()
+        self.conn.close()
 
-    def save(self):
-        '''save user after creation or modification'''
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)",
-                       (self.username, self.password, )
-                      )
-        connection.commit()
-        connection.close()
 
-    def get_all(self):
-        '''function to return all users'''
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("SELECT * FROM users")
-        table_data = cursor.fetchall()
-        temp = []
-        token = None
-        for single_user in table_data:
-            temp.append({"id":single_user[0], "username":single_user[1], "password":single_user[2]})
-        self.data = temp
-        connection.commit()
-        connection.close()
-        return self.data
 
-class entry(object):
-    def __init__(self,db_name):
-        self.data = None
-        self.title = None
-        self.content = None
-        self.user_id = None
-        self.db_name =db_name
-
-    def create(self, title, content, user_id):
+class Entry(Db):
+    def __init__(self, title, content, user_id = None  ):
+        super(Entry, self).__init__()
         self.title = title
         self.content = content
         self.user_id = user_id
-        self.save()
+        self.date_created = datetime.now().strftime("%c")
+        entry_list = self.get_all_entries()
+        save = True
+        for entry in entry_list:
+            if entry["title"] == title:
+                save = False
+       #save information to db
+        cursor = self.get_connnection().cursor()
+        if save:
+            print("saving")
+            cursor.execute(
+                "INSERT INTO entries (title, content, date_created ,user_id) VALUES (%s, %s, %s, %s)",
+                (self.title, self.content, self.date_created, self.user_id,)
+                )
+        print("something")
+        self.conn.commit()
+        self.conn.close()
 
-    def save(self):
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("INSERT INTO entries (title, content, user_id ) VALUES (%s, %s, %s)",
-                       (self.title, self.content, self.user_id, )
-                      )
-        connection.commit()
-        connection.close()
     
-    def update(self,id, title, content):
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("UPDATE entries SET content = %s , title = %s WHERE id = %s",
-                       (content, title, id, )
-                      )
-        connection.commit()
-        connection.close()
-        
-
-
-    def get_all(self):
-        '''function to return all users'''
-        connection = psycopg2.connect(
-            database  = "d9uk0uj735e4rp",
-            password = '4fc5272295b21a8157ca9c88c95ebcf100f57112247356756dc725974b810a22',
-            user  = 'pfpewbzvzcrsnk',
-            host  = "ec2-54-204-23-228.compute-1.amazonaws.com",
-            )
-        cursor = connection.cursor()
-        #save information to db
-        cursor.execute("SELECT * FROM entries")
-        table_data = cursor.fetchall()
-        temp = []
-        token = None
-        for single_entry in table_data:
-            temp.append({"id":single_entry[0], "title":single_entry[1], "content":single_entry[2],
-                "user_id":single_entry[3]})
-        self.data = temp
-        connection.commit()
-        connection.close()
-        return self.data

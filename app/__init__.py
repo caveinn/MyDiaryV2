@@ -1,11 +1,12 @@
 '''create the app'''
 import datetime
-import jwt
 from functools import wraps
+import re
+import jwt
 from flask import Flask, request, jsonify
 from instance.config import app_config
-from app.models import user, entry
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.models import User, Entry, Db
 
 #wrapper to to confirm authentication
 
@@ -26,31 +27,33 @@ def create_app(configName):
                 return jsonify({"message":"no token specified"}), 401
             try:
                 data = jwt.decode(token, app.config.get("SECRET"))
-                usr = user(app.config.get('DB'))
+                db_object = Db()
 
-                user_data = usr.get_all()
-
+                user_data = db_object.get_all_users()
                 for single_user in user_data:
-                    if single_user["username"] == data["username"]:
+
+                    if single_user["username"]== data["username"]:
                         current_user = single_user
 
             except Exception as e:
-
+                print(e)
                 return jsonify({"message":"invalid token"}), 401
             return func(current_user, *args, **kwags)
         return decorated
+
     @app.route("/api/v2/auth/login", methods=["POST"])
     def login():
         '''function ot log in user'''
-        user_ = user(app.config.get('DB'))
-        user_data = user_.get_all()
-        auth = request.authorization
+        db_object = Db()
+        user_data = db_object.get_all_users()
+        username = request.get_json()["username"]
+        password = request.get_json()["password"]
         resp = None
         token = None
         for single_user in user_data:
-            if single_user and auth:
-                if auth["username"] == single_user["username"] and \
-                check_password_hash(single_user["password"],auth["password"]):
+            if single_user and  username and password:
+                if username == single_user["username"] and \
+                check_password_hash(single_user["password"],password):
                     token = jwt.encode(
                         {"username":single_user["username"], 'exp': datetime.datetime.utcnow()+
                         datetime.timedelta(minutes=300)}, app.config.get("SECRET"))
@@ -64,11 +67,12 @@ def create_app(configName):
     @token_required
     def get_entries(current_user):
         '''function get all entries for the user'''
-        entry_model = entry(app.config.get('DB'))
-        data = {}
-        data = entry_model.get_all()
-        data_to_show=[]
-        for ent in data:
+        db = Db()
+        entries = db.get_all_entries()
+        print(entries)
+        data_to_show = []
+        for ent in entries:
+
             if ent['user_id'] == current_user["id"]:
                 data_to_show.append(ent)
         return jsonify(data_to_show)
@@ -77,58 +81,97 @@ def create_app(configName):
     def create_user():
         '''function to signup user'''
         data = request.get_json()
-        user_obj = user(app.config.get('DB'))
+        db_obj = Db()
+        username = data["username"].strip()
+        email = data["email"].strip()
+        user_data = db_obj.get_all_users()
+        for single_user in user_data:
+            if single_user["username"] == username:
+                return jsonify({"message":"user "+ data['username']+" is already registered"}), 400
+            if single_user["email"] == email:
+                return jsonify({"message":"email "+ email +" is already registered"}), 400
+        if not re.match(r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)", email):
+            return jsonify({'message':'invalid email'}), 400
+        if username == '':
+            return jsonify({"message":"username cannot be blank"}), 400
+        if data["password"] == '':
+            return jsonify({"message":"password cannot be blank"}), 400
         hashed_password = generate_password_hash(data["password"], method="sha256")
-        user_obj.create(data["username"], hashed_password)
-        return jsonify({"message":"user created"}), 201
+        user_obj = User(data["username"], data["email"], hashed_password)
+
+        return jsonify({"message":"user "+data["username"]+" created"}), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required
     def create_entry(current_user):
         '''function to create  a new entry'''
         data = request.get_json()
-        entry_model = entry(app.config.get('DB'))
-        entry_model.create(data["title"], data["content"], current_user["id"])
+        db_obj = Db()
+        entry_data = db_obj.get_all_entries()
+        for single_entry in entry_data:
+            if single_entry["title"] == data["title"] and single_entry["user_id"] == current_user["id"]:
+                return jsonify({"message":"entry with title "+ data['title']+" already exists"}), 400
+        if data["title"].strip() == '':
+            return jsonify({"message":"title cannot be blank"}), 400
+        if data["content"].strip() == '':
+            return jsonify({"message":"content cannot be blank"}), 400
+
+        entry_obj = Entry(title=data["title"], content = data["content"], user_id =current_user["id"] )
         return jsonify({"message":"created succesfully"}), 201
 
     @app.route("/api/v2/entries/<entry_id>", methods=["PUT"])
     @token_required
     def modify_entry(current_user,entry_id):
         '''function to modify an entry'''
-        entry_model = entry(app.config.get('DB'))
+        db = Db()
         data = request.get_json()
-        entry_data = entry_model.get_all()
+        entry_data = db.get_all_entries()
         exists = False
         for ent in entry_data:
             if int(ent["id"]) == int(entry_id):
                 exists = True
                 if int(ent["user_id"]) == int(current_user["id"]):
-                    entry_model.update(id=entry_id,title=data["title"],content=data["content"])
+                    db.update(entry_id=entry_id, title=data["title"], content=data["content"])
                 else:
                     return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
-        
         if not exists:
             return jsonify({"message":"entry does not exist"}), 401
         else:
             return jsonify({"message":"update succesful"})
+
+    @app.route("/api/v2/entries/<entry_id>", methods=["DELETE"])
+    @token_required
+    def delete_entry(current_user,entry_id):
+        '''function to modify an entry'''
+        db = Db()
+        data = request.get_json()
+        entry_data = db.get_all_entries()
+        exists = False
+        for ent in entry_data:
+            if int(ent["id"]) == int(entry_id):
+                exists = True
+                if int(ent["user_id"]) == int(current_user["id"]):
+                    db.delete(entry_id=entry_id)
+                else:
+                    return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
+        if not exists:
+            return jsonify({"message":"entry does not exist"}), 401
+        else:
+            return jsonify({"message":"deleted"})
 
 
     @app.route("/api/v2/entries/<entry_id>", methods = ["GET"])
     @token_required
     def get_single_entry(current_user, entry_id):
         '''function to modify an entry'''
-        entry_model = entry(app.config.get('DB'))
-        entry_data = entry_model.get_all()
-        exists = False
-        response = {"message":"could not get the entry"}
-        for ent in entry_data:
-            if int(ent["id"]) == int(entry_id):
-                exists = True
-                if int(ent["user_id"]) == int(current_user["id"]):
-                    response = ent
-                            
-        if not exists:
-            return jsonify(response), 400
-        return jsonify(response)
+        db = Db()
+        entries = db.get_all_entries()
+        entry = {"message":"could not find your entry"}
+        print(entries)
+        print(current_user)
+        for ent in entries:
+            if int(ent['user_id']) == int(current_user["id"]) and int(ent["id"]) == int(entry_id):
+                entry=ent  
+        return jsonify(entry)
                     
     return app

@@ -15,7 +15,7 @@ class Testing(Config):
     '''Configuration for testing environment'''
     WTF_CSRF_ENABLED = False
     DEBUG = True
-    DB = "dbname = test_db"
+    DB_NAME = "test_db"
 
 class Production(Config):
     '''Configuration for production environment'''

@@ -1,5 +1,4 @@
-from app.models import db_table
+from app.models import Db
 
-db = db_table("dbname = test_db")
-db=db_table("dbname = test_db")
-db.create_tables()
+DB_OBJ = Db()
+DB_OBJ.create_tables()

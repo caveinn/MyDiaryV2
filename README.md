@@ -9,13 +9,11 @@ Prerequisites to run this app:
    1. have postgres installed in your system running on localhost
 
 To run this project you should follow the following steps:  
-
 1. Cretate  a virual enviroment with the command  
 `$ virtualenv -p python3 venv`  
 
 1. Activate the venv with the command     
 `$ source venv/bin/activate`
-
 
 1. Install git  
 1. clone this repo  
@@ -26,8 +24,11 @@ To run this project you should follow the following steps:
 	`$ export APP_SETTINGS="development"`  
 	`$ export SECRET="a secret string of your choosing"`
 1. install requirements      
-`$ pip install -r requirements.txt`
-
+`$ pip install -r requirements.txt`  
+1. create the test database  
+`createdb trial_db`  
+1. create tables 
+`python manage.py`
 1. now we are ready to run. 
 	1. for tests run  
 	`$ python test_Api.py`   

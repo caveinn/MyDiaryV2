@@ -83,7 +83,7 @@ def create_app(configName):
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj = User(data["username"], data["email"], hashed_password)
 
-        return jsonify({"message":"user created"}, user_obj.get_data()), 201
+        return jsonify({"message":"user created"}), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required

@@ -4,9 +4,9 @@ from functools import wraps
 import re
 import jwt
 from flask import Flask, request, jsonify
-from instance.config import app_config
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User, Entry, Db
+from instance.config import app_config
 
 #wrapper to to confirm authentication
 
@@ -105,6 +105,7 @@ def create_app(configName):
     @token_required
     def create_entry(current_user):
         '''function to create  a new entry'''
+        print("creating entry")
         data = request.get_json()
         db_obj = Db()
         entry_data = db_obj.get_all_entries()
@@ -123,20 +124,11 @@ def create_app(configName):
     @token_required
     def modify_entry(current_user,entry_id):
         '''function to modify an entry'''
-        db = Db()
         data = request.get_json()
-        entry_data = db.get_all_entries()
-        exists = False
-        for ent in entry_data:
-            if int(ent["id"]) == int(entry_id):
-                exists = True
-                if int(ent["user_id"]) == int(current_user["id"]):
-                    db.update(entry_id=entry_id, title=data["title"], content=data["content"])
-                    return jsonify({"id":ent["id"],"title":data["title"], "content":data["content"], "datecreated":ent["date_created"], "user_id":ent["user_id"]})
-                else:
-                    return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
+        db_obj = Db()
+        entry = db_obj.update(entry_id, data["title"], data["content"], current_user["id"])
         
-        return jsonify({"message":"entry does not exist"}), 400
+        return entry
         
     @app.route("/api/v2/entries/<entry_id>", methods=["DELETE"])
     @token_required

@@ -155,7 +155,7 @@ def create_app(configName):
         return jsonify(entry)
 
     @app.route("/")
-    def index()
+    def index():
         return ("<a href=https://caveinn.docs.apiary.io>Documentation</a>")
                     
     return app

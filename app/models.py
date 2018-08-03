@@ -2,7 +2,7 @@
 import os
 from datetime import datetime
 import psycopg2
-
+from flask import jsonify
 class Db(object):
     '''class to initialise tables in db'''
     def __init__(self):
@@ -35,16 +35,14 @@ class Db(object):
                 )
             #create entries db
             cursor.execute(
-                "CREATE TABLE entries (id serial PRIMARY KEY, title varchar(100) not null unique,"\
+                "CREATE TABLE entries (id serial PRIMARY KEY, title varchar(100) not null,"\
                 "content varchar(400) not null, date_created varchar not null, "\
                 "user_id integer references users(id))"
                 )
         except psycopg2.Error as db_error:
-            print(db_error)
-            return db_error.pgerror
+            pass
         self.conn.commit()
         self.conn.close()
-        return "work"
 
     def get_all_users(self):
         '''function to return all users'''
@@ -63,14 +61,29 @@ class Db(object):
 
         self.conn.close()
         return users_list
-    def update(self, entry_id, title, content):
+
+    def update(self, entry_id, title, content, user_id):
         #update entry in db
         cursor = self.get_connnection().cursor()
+        cursor.execute("SELECT * FROM entries WHERE title = %s and user_id = %s",(title, user_id,))
+        row = cursor.fetchall()
+        if row:
+            print("something went wrong")
+            return jsonify({"message":"the title is already in use"}), 400
         cursor.execute(
             "UPDATE entries SET content = %s , title = %s WHERE id = %s",
             (content, title, entry_id, )
             )
         self.conn.commit()
+        cursor.execute("SELECT * FROM entries WHERE id = %s",(entry_id,))
+        row = cursor.fetchone()
+        entry_dict = {}
+        entry_dict["id"] = row[0]
+        entry_dict["title"] = row[1]
+        entry_dict["content"] = row[2]
+        entry_dict["date_created"] = row[3]
+        entry_dict["user_id"] = row[4]
+        return jsonify(entry_dict), 200
     
     def delete(self, entry_id):
         #delete entry
@@ -82,11 +95,9 @@ class Db(object):
         self.conn.commit()
 
     def get_all_entries(self):
-        print ("creating connection")
         cursor = self.get_connnection().cursor()
         cursor.execute("SELECT * FROM entries")
         entry_data = cursor.fetchall()
-        print(entry_data)
         entry_list = []
         
         for single_entry in entry_data:
@@ -130,7 +141,6 @@ class User(Db):
        #save information to db
         cursor = self.get_connnection().cursor()
         if save:
-            print("saving")
             cursor.execute(
                 "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                 (self.username, self.email, self.password, )
@@ -168,7 +178,6 @@ class Entry(Db):
        #save information to db
         cursor = self.get_connnection().cursor()
         if save:
-            print("saving")
             cursor.execute(
                 "INSERT INTO entries (title, content, date_created ,user_id) VALUES (%s, %s, %s, %s)",
                 (self.title, self.content, self.date_created, self.user_id,)

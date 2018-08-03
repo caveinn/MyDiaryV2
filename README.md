@@ -2,7 +2,7 @@ This is an online diary where users can pen down their thoughts
 
 
 [![Build Status](https://travis-ci.org/caveinn/MyDiaryV2.svg?branch=develop)](https://travis-ci.org/caveinn/MyDiaryV2) 
-[![Coverage Status](https://coveralls.io/repos/github/caveinn/MyDiaryV2/badge.svg?branch=ch-refactor-to-tests-159381535)](https://coveralls.io/github/caveinn/MyDiaryV2?branch=ch-refactor-to-tests-159381535)
+[![Coverage Status](https://coveralls.io/repos/github/caveinn/MyDiaryV2/badge.svg?branch=develop)](https://coveralls.io/github/caveinn/MyDiaryV2?branch=develop)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7bfa0b3c076b50e59903/maintainability)](https://codeclimate.com/github/caveinn/MyDiaryV2/maintainability) 
 
  

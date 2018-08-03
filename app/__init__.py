@@ -32,7 +32,7 @@ def create_app(configName):
                 user_data = db_object.get_all_users()
                 for single_user in user_data:
 
-                    if single_user["username"]== data["username"]:
+                    if single_user["username"] == data["username"]:
                         current_user = single_user
 
             except Exception as e:
@@ -99,7 +99,7 @@ def create_app(configName):
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj = User(data["username"], data["email"], hashed_password)
 
-        return jsonify({"message":"user "+data["username"]+" created"}), 201
+        return jsonify(user_obj.get_data()), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required
@@ -117,7 +117,7 @@ def create_app(configName):
             return jsonify({"message":"content cannot be blank"}), 400
 
         entry_obj = Entry(title=data["title"], content = data["content"], user_id =current_user["id"] )
-        return jsonify({"message":"created succesfully"}), 201
+        return jsonify(entry_obj.get_data()), 201
 
     @app.route("/api/v2/entries/<entry_id>", methods=["PUT"])
     @token_required
@@ -132,35 +132,29 @@ def create_app(configName):
                 exists = True
                 if int(ent["user_id"]) == int(current_user["id"]):
                     db.update(entry_id=entry_id, title=data["title"], content=data["content"])
+                    return jsonify({"id":ent["id"],"title":data["title"], "content":data["content"], "datecreated":ent["date_created"], "user_id":ent["user_id"]})
                 else:
                     return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
-        if not exists:
-            return jsonify({"message":"entry does not exist"}), 401
-        else:
-            return jsonify({"message":"update succesful"})
-
+        
+        return jsonify({"message":"entry does not exist"}), 400
+        
     @app.route("/api/v2/entries/<entry_id>", methods=["DELETE"])
     @token_required
     def delete_entry(current_user,entry_id):
         '''function to modify an entry'''
         db = Db()
-        data = request.get_json()
         entry_data = db.get_all_entries()
-        exists = False
+        entry_to_del = None
         for ent in entry_data:
             if int(ent["id"]) == int(entry_id):
-                exists = True
                 if int(ent["user_id"]) == int(current_user["id"]):
+                    entry_to_del = ent
                     db.delete(entry_id=entry_id)
-                else:
-                    return jsonify({"message":"you tried to acces a entry thats not yours"}), 401
-        if not exists:
-            return jsonify({"message":"entry does not exist"}), 401
-        else:
-            return jsonify({"message":"deleted"})
+                    return jsonify(entry_to_del)
+                return jsonify({"message":"you tried to access a entry thats not yours"}), 400
+        return jsonify({"message":"entry does not exist"}), 400
 
-
-    @app.route("/api/v2/entries/<entry_id>", methods = ["GET"])
+    @app.route("/api/v2/entries/<entry_id>", methods=["GET"])
     @token_required
     def get_single_entry(current_user, entry_id):
         '''function to modify an entry'''

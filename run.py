@@ -2,8 +2,8 @@
 import os
 from app import create_app
 
-name = os.getenv("APP_SETTINGS")
-app = create_app(configName=name)
+NAME = os.getenv("APP_SETTINGS")
+APP = create_app(configName=NAME)
 
 if __name__ == "__main__":
-    app.run()
+    APP.run()

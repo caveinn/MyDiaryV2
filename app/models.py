@@ -121,6 +121,7 @@ class User(Db):
         self.username = username
         self.password = password
         self.email = email
+        self.id = None
         user_list = self.get_all_users()
         save = True
         for user in user_list:
@@ -134,9 +135,20 @@ class User(Db):
                 "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                 (self.username, self.email, self.password, )
                 )
-        print("something")
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        row = cursor.fetchone()
+        self.id = row[0]
         self.conn.commit()
         self.conn.close()
+
+    def get_data(self):
+        user_data = {
+            "id":self.id,
+            "username":self.username,
+            "email": self.email
+        }
+
+        return user_data
 
 
 
@@ -146,6 +158,7 @@ class Entry(Db):
         self.title = title
         self.content = content
         self.user_id = user_id
+        self.id = None
         self.date_created = datetime.now().strftime("%c")
         entry_list = self.get_all_entries()
         save = True
@@ -160,8 +173,20 @@ class Entry(Db):
                 "INSERT INTO entries (title, content, date_created ,user_id) VALUES (%s, %s, %s, %s)",
                 (self.title, self.content, self.date_created, self.user_id,)
                 )
-        print("something")
+        cursor.execute("SELECT id FROM entries WHERE title = %s and user_id = %s ", (self.title,self.user_id,))
+        row = cursor.fetchone()
+        self.id = row[0]
         self.conn.commit()
         self.conn.close()
 
+    def get_data(self):
+        entry_data = {
+            "id":self.id,
+            "title":self.title,
+            "content": self.content,
+            "date-created":self.date_created,
+            "author_id": self.user_id
+        }
+
+        return entry_data
     

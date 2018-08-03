@@ -36,7 +36,6 @@ def create_app(configName):
                         current_user = single_user
 
             except Exception as e:
-                print(e)
                 return jsonify({"message":"invalid token"}), 401
             return func(current_user, *args, **kwags)
         return decorated
@@ -69,7 +68,6 @@ def create_app(configName):
         '''function get all entries for the user'''
         db = Db()
         entries = db.get_all_entries()
-        print(entries)
         data_to_show = []
         for ent in entries:
 
@@ -105,7 +103,6 @@ def create_app(configName):
     @token_required
     def create_entry(current_user):
         '''function to create  a new entry'''
-        print("creating entry")
         data = request.get_json()
         db_obj = Db()
         entry_data = db_obj.get_all_entries()
@@ -127,7 +124,6 @@ def create_app(configName):
         data = request.get_json()
         db_obj = Db()
         entry = db_obj.update(entry_id, data["title"], data["content"], current_user["id"])
-        
         return entry
         
     @app.route("/api/v2/entries/<entry_id>", methods=["DELETE"])
@@ -153,8 +149,6 @@ def create_app(configName):
         db = Db()
         entries = db.get_all_entries()
         entry = {"message":"could not find your entry"}
-        print(entries)
-        print(current_user)
         for ent in entries:
             if int(ent['user_id']) == int(current_user["id"]) and int(ent["id"]) == int(entry_id):
                 entry=ent  

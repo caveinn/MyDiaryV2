@@ -68,6 +68,7 @@ class Db(object):
         cursor.execute("SELECT * FROM entries WHERE title = %s and user_id = %s",(title, user_id,))
         row = cursor.fetchall()
         if row:
+            print("something went wrong")
             return jsonify({"message":"the title is already in use"}), 400
         cursor.execute(
             "UPDATE entries SET content = %s , title = %s WHERE id = %s",
@@ -82,7 +83,7 @@ class Db(object):
         entry_dict["content"] = row[2]
         entry_dict["date_created"] = row[3]
         entry_dict["user_id"] = row[4]
-        return jsonify(entry_dict)
+        return jsonify(entry_dict), 200
     
     def delete(self, entry_id):
         #delete entry
@@ -140,7 +141,6 @@ class User(Db):
        #save information to db
         cursor = self.get_connnection().cursor()
         if save:
-            print("saving")
             cursor.execute(
                 "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                 (self.username, self.email, self.password, )
@@ -178,7 +178,6 @@ class Entry(Db):
        #save information to db
         cursor = self.get_connnection().cursor()
         if save:
-            print("saving")
             cursor.execute(
                 "INSERT INTO entries (title, content, date_created ,user_id) VALUES (%s, %s, %s, %s)",
                 (self.title, self.content, self.date_created, self.user_id,)

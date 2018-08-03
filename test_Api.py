@@ -59,10 +59,16 @@ class api_test_case(unittest.TestCase):
         self.assertEqual(res.status_code,200)    
 
     def test_modify_entry(self):
-        res=self.client().put("/api/v2/entries/1",data=self.entry_information,
+        res=self.client().put("/api/v2/entries/1",data=json.dumps({"title":"title", "content":"content" }),
             headers= {"access_token":self.token},
             content_type="application/json")
         self.assertEqual(res.status_code,200)
+    
+    def test_delete_single_entry(self):
+        res=self.client().delete("/api/v2/entries/1", headers={"access_token":self.token}, content_type="application/json")
+        self.assertEqual(res.status_code,200) 
+    
+    
 
 if __name__ == "__main__":
     unittest.main()

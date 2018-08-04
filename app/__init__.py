@@ -71,9 +71,7 @@ def create_app(configName):
         print(entries)
         data_to_show = []
         for ent in entries:
-            print(current_user)
-            print(ent)
-            print()
+
             if ent['user_id'] == current_user["id"]:
                 data_to_show.append(ent)
         return jsonify(data_to_show)
@@ -93,7 +91,6 @@ def create_app(configName):
         '''function to create  a new entry'''
         data = request.get_json()
         entry_obj = Entry(title=data["title"], content = data["content"], user_id =current_user["id"] )
-        print(data)
         return jsonify({"message":"created succesfully"}), 201
 
     @app.route("/api/v2/entries/<entry_id>", methods=["PUT"])
@@ -122,18 +119,14 @@ def create_app(configName):
     @token_required
     def get_single_entry(current_user, entry_id):
         '''function to modify an entry'''
-        entry_model = entry(app.config.get('DB'))
-        entry_data = entry_model.get_all()
-        exists = False
-        response = {"message":"could not get the entry"}
-        for ent in entry_data:
-            if int(ent["id"]) == int(entry_id):
-                exists = True
-                if int(ent["user_id"]) == int(current_user["id"]):
-                    response = ent
-                            
-        if not exists:
-            return jsonify(response), 400
-        return jsonify(response)
+        db = Db()
+        entries = db.get_all_entries()
+        entry = {"message":"could not find your entry"}
+        print(entries)
+        print(current_user)
+        for ent in entries:
+            if int(ent['user_id']) == int(current_user["id"]) and int(ent["id"]) == int(entry_id):
+                entry=ent  
+        return jsonify(entry)
                     
     return app

@@ -1,7 +1,8 @@
 '''creating and managing database tables'''
-import psycopg2
 import os
 from datetime import datetime
+import psycopg2
+
 class Db(object):
     '''class to initialise tables in db'''
     def __init__(self):
@@ -158,13 +159,4 @@ class Entry(Db):
             )
         self.conn.commit()
 
-    def get_data(self):
-        ent_data = {}
-        ent_data["id"] = self.entry_id
-        ent_data["title"] = self.title
-        ent_data["content"] = self.content
-        ent_data["date-created"] = self.content
-        ent_data["author_id"] = self.user_id
-
-        return ent_data
     

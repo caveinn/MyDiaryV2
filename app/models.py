@@ -68,7 +68,6 @@ class Db(object):
         cursor.execute("SELECT * FROM entries WHERE title = %s and user_id = %s",(title, user_id,))
         row = cursor.fetchall()
         if row:
-            print("something went wrong")
             return jsonify({"message":"the title is already in use"}), 400
         cursor.execute(
             "UPDATE entries SET content = %s , title = %s WHERE id = %s",

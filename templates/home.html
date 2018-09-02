@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>MyDiary|Home</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<header>
+		<div class="container">
+			<a href="/">
+    			<span class="logo"><h1>
+       			 <span class= "highlighted">My</span>Diary</h1>
+    			</span>
+				</a>
+			<nav>
+				<ul>
+					<li class="current"><a href="home">Home</a></li>
+					<li><a href="profile">profile</a></li>
+					<li><a href="login">Log Out</a></li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<section id ="entries">
+	<div class= "container">
+		<button class="button0" id="button0"> Add  new Entry </button>
+	
+	
+		<table>
+			<tr>
+				<th>Title</th>
+				<th>Content</th>
+				<th>Options</th>
+				<th>Date</th>
+			</tr>
+			<tr>
+				<td class="title">Something on my mind</td>
+				<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue tortor vel sapien bibendum dignissim. Nulla in dignissim massa. Donec quam nulla, dignissim sit amet magna nec, rutrum tristique velit. Etiam laoreet turpis at justo pulvinar, sit amet bibendum justo finibus.</td>
+				<td>
+				<button id="button1"  class="button1">EDit </button>
+				<br><button  class="button2">Delete</button>
+				</td>
+				<td>12/7/2018</td>
+			</tr>
+			<tr>
+				<td class="title">Something else my mind</td>
+				<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue tortor vel sapien bibendum dignissim. Nulla in dignissim massa. Donec quam nulla, dignissim sit amet magna nec, rutrum tristique velit. Etiam laoreet turpis at justo pulvinar, sit amet bibendum justo finibus.</td>
+				<td>
+				<button id="button2"    class="button1">EDit </button>
+				
+				<br><button  class="button2">Delete</button>
+				</td>
+				<td>11/7/2018</td>
+			</tr>
+			<tr>
+				<td class="title">Something was not on my mind</td>
+				<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue tortor vel sapien bibendum dignissim. Nulla in dignissim massa. Donec quam nulla, dignissim sit amet magna nec, rutrum tristique velit. Etiam laoreet turpis at justo pulvinar, sit amet bibendum justo finibus.</td>
+				<td>
+				<button id="button3"  class="button1">EDit </button>
+				<br><button  class="button2">Delete</button>
+				</td>
+				<td>3/7/2018</td>
+			</tr>
+		</table>
+		
+	</div>
+	<div id="addentry">
+	<div id= "container">
+	
+	<form>
+		<h1>Title</h1>
+		<input type="text" name="title" placeholder="Title"><br>
+		<h2>Entry content</h2>
+		<textarea rows="16" cols="80"></textarea>
+		<input id="submit" type="submit" value="submit" name="submit">
+
+	</form>
+	
+		
+	</div>
+	</div>
+		
+	</section>
+	<footer>
+		<div class="container"><p> MyDiary copyright &copy; 2018<p>
+		</p>
+		</div>
+	</footer>
+	<script src="script.js"></script>
+</body>
+</html>

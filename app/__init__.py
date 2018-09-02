@@ -3,19 +3,22 @@ import datetime
 from functools import wraps
 import re
 import jwt
-from flask import Flask, request, jsonify
+from flask_cors import CORS
+from flask import Flask, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User, Entry, Db
 from instance.config import app_config
 
-#wrapper to to confirm authentication
+
 
 
 def create_app(configName):
     app = Flask("__name__")
+    CORS(app)
     app.config.from_object(app_config[configName])
     app.config.from_pyfile("instance/config.py")
 
+    #wrapper to to confirm authentication
     def token_required(func):
         @wraps(func)
         def decorated(*args, **kwags):
@@ -78,7 +81,11 @@ def create_app(configName):
     @app.route("/api/v2/auth/signup", methods=['POST'])
     def create_user():
         '''function to signup user'''
+        print(request.get_json())
         data = request.get_json()
+        print("\n\n\n ")
+        print(data)
+        print("\n\n\n\n\n\n")
         db_obj = Db()
         username = data["username"].strip()
         email = data["email"].strip()
@@ -153,9 +160,19 @@ def create_app(configName):
             if int(ent['user_id']) == int(current_user["id"]) and int(ent["id"]) == int(entry_id):
                 entry=ent  
         return jsonify(entry)
+    @app.route("/api/v2/") 
+    def Documentation():
+        return ("<a href=https://caveinn.docs.apiary.io>Documentation</a>")
 
     @app.route("/")
     def index():
-        return ("<a href=https://caveinn.docs.apiary.io>Documentation</a>")
+        return render_template("index.html")
+    @app.route("/login")
+    def show_login():
+        return render_template("login.html")
+
+    @app.route("/signup")
+    def show_signup():
+        return render_template("signup.html")
                     
     return app

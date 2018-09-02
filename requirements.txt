@@ -5,3 +5,4 @@ PyJWT==1.6.4
 pytest==3.6.3
 pytest-cov==2.5.1
 gunicorn==19.9.0
+Flask-Cors==3.0.6

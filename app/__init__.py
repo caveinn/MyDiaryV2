@@ -103,8 +103,7 @@ def create_app(configName):
             return jsonify({"message":"password cannot be blank"}), 400
         hashed_password = generate_password_hash(data["password"], method="sha256")
         user_obj = User(data["username"], data["email"], hashed_password)
-
-        return jsonify(user_obj.get_data()), 201
+        return jsonify({"message": "user_created"},user_obj.get_data()), 201
 
     @app.route("/api/v2/entries", methods=['POST'])
     @token_required

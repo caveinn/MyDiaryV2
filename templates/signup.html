@@ -25,16 +25,18 @@
 <div class="container">
 
 <div class="forms">
-	<form name="signup"  action="/">
+	<form name="signup" id="signform" >
+		<h2 id="message"></h2>
 		<h4>Sign up</h4><br>
-		<input type="Text" name="Name" placeholder=" Username"><br>
-		<input type="Text" name="Email" placeholder="  email "><br>
-		<input type="Password" name="Password" placeholder=" password"><br>
-		<input type="Password" name="Confirmpass" placeholder="Re-enter Password"><br>
-		<input type="Submit" name="Submit" value="Register"><br>
+		<input type="Text"  required name="Name" id ="username" placeholder=" Username"><br>
+		<input type="email" required="" name="Email" id = "email" placeholder=" email "><br>
+		<input type="Password" required name="Password" id = "password" placeholder=" password"><br>
+		<input type="Password" required name="Confirmpass" id = "Confirmpass" placeholder="Re-enter Password"><br>
+		<button id= "signbtn">Register</button><br>
 		<p> I have an account ?<a href="/">Log in</a></p>
 
 	</form>
+	
 </div>
 
 </div>
@@ -43,6 +45,6 @@
 		</p>
 		</div>
 	</footer>
-
+<script src="static/signup.js"></script>
 </body>
 </html>

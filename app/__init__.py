@@ -159,19 +159,11 @@ def create_app(configName):
             if int(ent['user_id']) == int(current_user["id"]) and int(ent["id"]) == int(entry_id):
                 entry=ent  
         return jsonify(entry)
-    @app.route("/api/v2/") 
-    def Documentation():
-        return ("<a href=https://caveinn.docs.apiary.io>Documentation</a>")
+    
+        
 
     @app.route("/")
     def index():
-        return render_template("index.html")
-    @app.route("/login")
-    def show_login():
-        return render_template("login.html")
+        return  "<a href=https://caveinn.docs.apiary.io>Documentation</a>"
 
-    @app.route("/signup")
-    def show_signup():
-        return render_template("signup.html")
-                    
     return app

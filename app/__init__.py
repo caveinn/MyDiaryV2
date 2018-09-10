@@ -110,6 +110,8 @@ def create_app(configName):
     def create_entry(current_user):
         '''function to create  a new entry'''
         data = request.get_json()
+        print(data)
+        print(current_user)
         db_obj = Db()
         entry_data = db_obj.get_all_entries()
         for single_entry in entry_data:
